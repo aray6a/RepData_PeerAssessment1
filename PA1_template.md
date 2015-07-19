@@ -87,9 +87,8 @@ makeBarGraph( activity )
 
 ```r
 meanActivity <- meanMed( activity )
-meanActivity <- meanActivity[[1]]
 ```
-The mean number of steps is 37.3825996.
+The mean number of steps is 37.3825996.  The median number of steps is 0.
 
 ## What is the average daily activity pattern?
 
@@ -124,7 +123,7 @@ numberOfNAs <- function( activity ) {
   sum( activity[ is.na(activity$steps), ]$countindex )
 }
 ```
-
+Using the average steps to fill in missing values.
 
 ```r
 fillMissingSteps <- function( activity ) {
@@ -135,14 +134,7 @@ fillMissingSteps <- function( activity ) {
 ```
 
 ```r
-  numberOfNAs( activity )
-```
-
-```
-## [1] 2304
-```
-
-```r
+  nas <- numberOfNAs( activity )
   makeBarGraph( fillMissingSteps( activity ) )
 ```
 
@@ -172,17 +164,9 @@ fillMissingSteps <- function( activity ) {
 ```
 
 ```r
-  meanMed( fillMissingSteps( activity ) )
+  meanActivity <- meanMed( fillMissingSteps( activity ) )
 ```
-
-```
-## [[1]]
-## [1] 37.3826
-## 
-## [[2]]
-## [1] 0
-```
-
+The number of NAs is 2304.  The mean number of steps is 37.3825996.  The median number of steps is 0.
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
@@ -218,3 +202,5 @@ fillMissingSteps <- function( activity ) {
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-3-1.png) 
+
+Yes there are differences.  More steps are taken on the weekdays.
