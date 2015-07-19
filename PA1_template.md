@@ -1,17 +1,29 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output:
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 
 ## Loading and preprocessing the data
 
 Function created and called to unzip data from 'activity.zip' file and to read data in DataFrame. Necessay libraries are loaded.
 
-```{r setup}
+
+```r
 library(dplyr)
+```
+
+```
+## 
+## Attaching package: 'dplyr'
+## 
+## The following object is masked from 'package:stats':
+## 
+##     filter
+## 
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```r
 library(ggplot2)
 library(scales)
 
@@ -27,7 +39,8 @@ activity = readActivityData()
 
 
 ## What is mean total number of steps taken per day?
-```{r}
+
+```r
 makeBarGraph <- function(activity) {
   activity %>% group_by( date ) %>% summarize( totalSteps = sum(steps))
   byday <- activity %>% group_by( date ) %>% summarize( totalSteps = sum(steps))
@@ -40,21 +53,58 @@ meanMed <- function( activity ) {
   list( mean( activity$steps, na.rm = T ), median( activity$steps, na.rm = T) )
 }
 makeBarGraph( activity )
+```
+
+```
+## [[1]]
+```
+
+```
+## Warning in loop_apply(n, do.ply): Removed 8 rows containing missing values
+## (position_stack).
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-1-1.png) 
+
+```
+## 
+## [[2]]
+## Source: local data frame [61 x 2]
+## 
+##          date totalSteps
+## 1  2012-10-01         NA
+## 2  2012-10-02        126
+## 3  2012-10-03      11352
+## 4  2012-10-04      12116
+## 5  2012-10-05      13294
+## 6  2012-10-06      15420
+## 7  2012-10-07      11015
+## 8  2012-10-08         NA
+## 9  2012-10-09      12811
+## 10 2012-10-10       9900
+## ..        ...        ...
+```
+
+```r
 meanActivity <- meanMed( activity )
 meanActivity <- meanActivity[[1]]
 ```
-The mean number of steps is `r meanActivity`.
+The mean number of steps is 37.3825996.
 
 ## What is the average daily activity pattern?
 
-```{r Number4}
+
+```r
 intervalTimeSeries <- function( activity ) {
   byInterval <- activity %>% group_by( interval ) %>% summarize( totalSteps = mean(steps, na.rm = T) )
   ggplot( byInterval, aes( x = interval, y = totalSteps ) ) + geom_point() + geom_line()
 }
 intervalTimeSeries( activity )
 ```
-```{r MaximumSteps}
+
+![](PA1_template_files/figure-html/Number4-1.png) 
+
+```r
 maxStepsByInterval <- function( activity ) {
   byInterval <- activity %>% group_by( interval ) %>% summarize( totalSteps = mean(steps, na.rm = T) )
   byInterval[ byInterval$totalSteps == max(byInterval$totalSteps),]
@@ -63,34 +113,81 @@ maxInterval <- maxStepsByInterval( activity )
 ```
 
 
-The interval with the maximum number of steps is `r maxInterval$totalSteps`
+The interval with the maximum number of steps is 206.1698113
 
 
 ## Imputing missing values
-```{r NumberOfNAs}
+
+```r
 numberOfNAs <- function( activity ) {
   activity$countindex = 1
   sum( activity[ is.na(activity$steps), ]$countindex )
 }
 ```
 
-```{r FillMissingSteps}
+
+```r
 fillMissingSteps <- function( activity ) {
   mm <- meanMed( activity )
   activity$steps <- ifelse( is.na(activity$steps), mm[[1]], activity$steps)
   activity
 }
 ```
-```{r}
+
+```r
   numberOfNAs( activity )
+```
+
+```
+## [1] 2304
+```
+
+```r
   makeBarGraph( fillMissingSteps( activity ) )
+```
+
+```
+## [[1]]
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png) 
+
+```
+## 
+## [[2]]
+## Source: local data frame [61 x 2]
+## 
+##          date totalSteps
+## 1  2012-10-01   10766.19
+## 2  2012-10-02     126.00
+## 3  2012-10-03   11352.00
+## 4  2012-10-04   12116.00
+## 5  2012-10-05   13294.00
+## 6  2012-10-06   15420.00
+## 7  2012-10-07   11015.00
+## 8  2012-10-08   10766.19
+## 9  2012-10-09   12811.00
+## 10 2012-10-10    9900.00
+## ..        ...        ...
+```
+
+```r
   meanMed( fillMissingSteps( activity ) )
+```
+
+```
+## [[1]]
+## [1] 37.3826
+## 
+## [[2]]
+## [1] 0
 ```
 
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r}
+
+```r
   applyWeekDay <- function( activity ) {
     activity$weekType <- weekdays( activity$date )
     activity$weekType <- ifelse (activity$weekType %in% c('Saturday', 'Sunday'), 'weekend', 'weekday')
@@ -104,5 +201,20 @@ fillMissingSteps <- function( activity ) {
   activityFilled <- fillMissingSteps( activity)
   activityWeekType <- applyWeekDay( activityFilled )
   head( activityWeekType )
+```
+
+```
+##     steps       date interval weekType
+## 1 37.3826 2012-10-01        0  weekday
+## 2 37.3826 2012-10-01        5  weekday
+## 3 37.3826 2012-10-01       10  weekday
+## 4 37.3826 2012-10-01       15  weekday
+## 5 37.3826 2012-10-01       20  weekday
+## 6 37.3826 2012-10-01       25  weekday
+```
+
+```r
   plotByWeekType( activityWeekType )
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png) 
